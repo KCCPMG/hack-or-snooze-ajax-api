@@ -37,3 +37,16 @@
 .story-user {
   display: block;
 }
+
+span.icon-span {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+i {
+  cursor: pointer;
+}
+
+i.delete-icon:hover {
+  color: red;
+}

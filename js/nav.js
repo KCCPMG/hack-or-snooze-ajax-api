@@ -34,3 +34,18 @@ function updateNavOnLogin() {
   $navLogOut.show();
   $navUserProfile.text(`${currentUser.username}`).show();
 }
+
+
+
+/**
+ * "Write a function in nav.js that is called when
+ * users click that navbarlink. Look at the other 
+ * function names in that file that do similar things 
+ * and pick something descriptive and similar."
+ */
+function navShowSubmitForm() {
+  $("#submit-story-form").show();
+}
+
+// click handler for #nav-submit
+$("#nav-submit").click(navShowSubmitForm);

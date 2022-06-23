@@ -22,10 +22,21 @@ class Story {
   }
 
   /** Parses hostname out of URL and returns it. */
-
+ 
   getHostName() {
-    // UNIMPLEMENTED: complete this function!
-    return "hostname.com";
+    let trimmedUrl = this.url
+    if (trimmedUrl.slice(0, 8) === "https://") {
+      trimmedUrl = trimmedUrl.slice(8);
+    } else if (trimmedUrl.slice(0, 7) === "http://") {
+      trimmedUrl = trimmedUrl.slice(7);
+    }
+
+    let slashIndex = trimmedUrl.indexOf("/");
+    if (slashIndex === -1) {
+      return trimmedUrl;
+    } else {
+      return trimmedUrl.slice(0, slashIndex);
+    }
   }
 }
 
@@ -73,8 +84,18 @@ class StoryList {
    * Returns the new Story instance
    */
 
-  async addStory( /* user, newStory */) {
-    // UNIMPLEMENTED: complete this function!
+  async addStory(  user, newStory ) {
+    try {
+      const response = await axios.post(`${BASE_URL}/stories`, {
+        token: user.loginToken,
+        story: newStory
+      });
+      const savedStory = new Story(response.data.story);
+      storyList.stories.unshift(savedStory);
+      return savedStory;
+    } catch(e) {
+      console.error(e);
+    }
   }
 }
 
@@ -191,6 +212,58 @@ class User {
     } catch (err) {
       console.error("loginViaStoredCredentials failed", err);
       return null;
+    }
+  }
+
+  /**
+   * API request to add story to favorites
+   * Update this.favorites from updated user in response
+   */
+  async favorite(storyId) {
+    try {
+      const response = await axios.post(`${BASE_URL}/users/${this.username}/favorites/${storyId}`, {
+        token: this.loginToken
+      });
+      this.favorites = response.data.user.favorites;
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  /**
+   * API request to delete story from favorites
+   * Update this.favorites from updated user in response
+   */
+  async unfavorite(storyId) {
+    try {
+      const response = await axios.delete(`${BASE_URL}/users/${this.username}/favorites/${storyId}`, {
+        data: {
+          token: this.loginToken
+        }
+      });
+      this.favorites = response.data.user.favorites;
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  /**
+   * API request to delete story that was added by this user
+   * On success, this API endpoint responds with a String
+   * confirming deletion and a copy of the deleted story.
+   * I'm choosing not to return from here, but to instead 
+   * get a full refresh of stories in the UI function that
+   * calls deleteStory
+   */
+  async deleteStory(story) {
+    try {
+      await axios.delete(`${BASE_URL}/stories/${story.storyId}`, {
+        data: {
+          token: this.loginToken
+        }
+      })
+    } catch(e) {
+      console.error(e);
     }
   }
 }
